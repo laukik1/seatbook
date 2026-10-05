@@ -1,0 +1,47 @@
+server:
+  port: ${PORT:8080}
+  shutdown: graceful
+  tomcat:
+    threads:
+      max: 200
+    accept-count: 10000
+    max-connections: 20000
+    connection-timeout: 60s
+spring:
+  datasource:
+    url: ${DB_URL:jdbc:mysql://localhost:3306/seatbook?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC&rewriteBatchedStatements=true}
+    username: ${DB_USER:root}
+    password: ${DB_PASSWORD:root}
+    hikari:
+      maximum-pool-size: ${DB_POOL:30}
+      connection-timeout: 60000
+  sql:
+    init:
+      mode: always
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: none          # schema owned by schema.sql
+    properties:
+      hibernate:
+        jdbc:
+          batch_size: 500
+        order_inserts: true
+        type:
+          preferred_uuid_jdbc_type: CHAR   # MySQL has no UUID type: store as CHAR(36)
+  jackson:
+    property-naming-strategy: SNAKE_CASE
+logging:
+  structured:
+    format:
+      console: ecs
+management:
+  endpoints:
+    web:
+      base-path: /
+      exposure:
+        include: prometheus
+      path-mapping:
+        prometheus: metrics
+app:
+  admin-token: ${ADMIN_TOKEN:admin-secret}

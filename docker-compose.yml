@@ -1,0 +1,29 @@
+services:
+  db:
+    image: mysql:8.4
+    environment:
+      MYSQL_DATABASE: seatbook
+      MYSQL_USER: seatbook
+      MYSQL_PASSWORD: seatbook
+      MYSQL_ROOT_PASSWORD: root
+    command:
+      - --max-connections=300
+      - --innodb-lock-wait-timeout=60
+      - --character-set-server=utf8mb4
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -uroot -proot --silent"]
+      interval: 3s
+      timeout: 3s
+      retries: 30
+  app:
+    build: .
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DB_URL: "jdbc:mysql://db:3306/seatbook?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC&rewriteBatchedStatements=true"
+      DB_USER: seatbook
+      DB_PASSWORD: seatbook
+      ADMIN_TOKEN: admin-secret
+    ports:
+      - "8080:8080"
